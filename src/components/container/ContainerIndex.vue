@@ -56,7 +56,11 @@
 
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item>用户中心</el-dropdown-item>
+              <el-dropdown-item>
+                <router-link class="link" to="/userCenter">
+                  用户中心
+                </router-link>
+              </el-dropdown-item>
               <el-dropdown-item @click="logout">登出</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -201,5 +205,9 @@ const logout = () => {
   justify-content: center;
   align-items: center;
   margin-right: 10px;
+}
+
+.link{
+  text-decoration: none;
 }
 </style>

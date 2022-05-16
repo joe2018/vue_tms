@@ -8,6 +8,7 @@ import RoleIndex from '../views/sys/RoleIndex'
 import MenusIndex from '../views/sys/MenusIndex'
 import DictIndex from '../views/tools/DictIndex'
 
+
 const routes = [
     {
         // 重定向
@@ -42,6 +43,12 @@ const routes = [
                 name: 'home',
                 component: Home,
                 meta: {title: '首页'}
+            },
+            {
+                path: '/userCenter',
+                name: 'userCenter',
+                component: () => import('@/components/home/UserCenter'),
+                meta: {title: '个人中心'}
             },
         ]
     },
