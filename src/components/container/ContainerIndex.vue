@@ -28,7 +28,7 @@
               <el-icon>
                 <component :is="iconObj[item.id]"/>
               </el-icon>
-              <span>{{ item.authName }}</span>
+              <span>{{ item.meta.title }}</span>
             </template>
             <el-menu-item :index="'/'+subitem.path" v-for="subitem in item.children" :key="subitem.id"
                           @click="saveNavstate('/'+subitem.path)">
@@ -36,7 +36,7 @@
                 <el-icon>
                   <Menu/>
                 </el-icon>
-                <span>{{ subitem.authName }}</span>
+                <span>{{ subitem.meta.title }}</span>
               </template>
             </el-menu-item>
           </el-sub-menu>
@@ -78,6 +78,7 @@
 import Bread from '@/components/utility/BreadTools'
 import {reactive, ref, shallowRef} from 'vue'
 import api from "@/axios";
+import{ useStore }from"vuex"
 
 const {HomeFilled, Avatar, Checked, Goods, List, PieChart, Menu} = require('@element-plus/icons')
 
@@ -85,6 +86,8 @@ const { ElMessage } = require('element-plus')
 const {
   onBeforeMount
 } = require('vue')
+
+const store = useStore();
 
 const meunsList = ref([])
 
@@ -123,16 +126,16 @@ const userinfo = reactive({
   user_name:''
 })
 onBeforeMount(async () => {
-  meunsList.value = await getMenuList()
+  meunsList.value = store.state.menus.menuList
   getUserInfo()
   defactivePath.value = window.sessionStorage.getItem('activePath')
 })
 
-const getMenuList = async () => {
-const { data: res } = await api.get('/menus')
-if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
-return res.data
-}
+// const getMenuList = async () => {
+// const { data: res } = await api.get('/menus')
+// if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
+// return res.data.nav
+// }
 
 const saveNavstate = (activePath) => {
   window.sessionStorage.setItem('activePath', activePath)

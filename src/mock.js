@@ -1,5 +1,6 @@
 const Mock = require('mockjs')
 
+
 const Random = Mock.Random
 
 let Result = {
@@ -57,68 +58,75 @@ Mock.mock('/sys/userinfo','get', ()=>{
 
 
 Mock.mock('/menus','get',()=>{
-    Result.data = [
+    const nav = [
         {
             "id": 110,
-            "authName": "业务中心",
+            "name": "Business",
             "path": "business",
+            'meta': {'title': '业务中心'},
             "children": [
-            {
-                "id": 111,
-                "authName": "短驳派车管理",
-                "path": "appoint",
-                "children": [],
-                'order': null
-            }
-        ],
+                {
+                    "id": 111,
+                    "name": "AppointCar",
+                    "path": "appoint",
+                    "children": [],
+                    'meta': {'title': '短驳派车管理'},
+                }
+            ],
             'order': 1
         },
-    {
-        "id": 120,
-        "authName": "系统管理",
-        "path": "sys",
-        "children": [
-            {
-                "id": 121,
-                "authName": "用户管理",
-                "path": "user",
-                "children": [],
-                'order': null
-            },
-            {
-                "id": 122,
-                "authName": "角色管理",
-                "path": "role",
-                "children": [],
-                'order': null
-            },
-            {
-                "id": 123,
-                "authName": "菜单管理",
-                "path": "menus",
-                "children": [],
-                'order': null
-            }
-        ],
-        'order': 2
-    },
+        {
+            "id": 120,
+            "name": "SYS",
+            "path": "/sys",
+            'meta': {'title': '系统管理'},
+            "children": [
+                {
+                    "id": 121,
+                    "name": "UserIndex",
+                    "path": "user",
+                    "children": [],
+                    'meta': {'title': '用户管理'},
+                },
+                {
+                    "id": 122,
+                    "name": "RoleIndex",
+                    "path": "role",
+                    "children": [],
+                    'meta': {'title': '角色管理'},
+                },
+                {
+                    "id": 123,
+                    "name": "MenusIndex",
+                    "path": "menus",
+                    "children": [],
+                    'meta': {'title': '菜单管理'},
+                }
+            ]
+        },
         {
             "id": 130,
-            "authName": "系统工具",
+            "name": "Tools",
             "path": "tools",
+            'meta': {'title': '系统工具'},
             "children": [
                 {
                     "id": 131,
-                    "authName": "数字字典",
+                    "name": "DictIndex",
                     "path": "dict",
+                    'meta': {'title': '数字字典'},
                     "children": [],
-                    'order': null
-                },
-            ],
-            'order': 3
-        }
 
-]
+                },
+            ]
+        }
+    ]
+    const authoritys = []
+
+    Result.data = {
+        nav:nav,
+        authoritys:authoritys
+    }
     Result.meta.msg = '成功'
     Result.meta.status = 200
     return Result
