@@ -1,19 +1,9 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
-// import Tools from '../components/container/ContainerIndex'
-// import SYS from '../components/container/ContainerIndex'
-import Index from '../components/container/ContainerIndex'
-// import Business from '../components/container/ContainerIndex'
-// import AppointCar from '../views/appoint/AppointCar'
+import HomeIndex from '../components/container/HomeIndex'
 import Login from '../components/login/loginIndex'
-import Home from '../components/home/HomeIndex'
-// import UserIndex from '../views/sys/UserIndex'
-// import RoleIndex from '../views/sys/RoleIndex'
-// import MenusIndex from '../views/sys/MenusIndex'
-// import DictIndex from '../views/tools/DictIndex'
+import WelcomeIndex from '../components/home/WelcomeIndex'
 import UserCenter from '../components/home/UserCenter'
-import api from "@/axios";
-import store from '../store/index'
-
+import nullPage from '@/views/404'
 
 const routes = [
     {
@@ -27,15 +17,22 @@ const routes = [
         component: Login
     },
     {
+        path: "/404",
+        name: "404",
+        component: nullPage
+    },
+    {
         path: '/home',
-        name: 'Index',
-        component: Index,
+        name: 'home',
+        component: HomeIndex,
+        redirect: '/welcome',
+        meta: { title: '首页' },
         children:[
             {
-                path: '/home',
-                name: 'Home',
-                component: Home,
-                meta: {title: '首页'}
+                path: '/welcome',
+                name: 'welcome',
+                component: WelcomeIndex,
+                meta: {title: '欢迎页'}
             },
             {
                 path: '/userCenter',
@@ -100,37 +97,7 @@ const routes = [
     //     ]
     // }
 ]
-
-const router = createRouter({
+export const router = createRouter({
     history: createWebHashHistory(),
     routes
 })
-
-router.beforeEach(async (to,from,next) => {
-    const {data: res} = await api.get('/menus')
-    await store.commit('setMenuList', res.data.nav)
-    await store.commit('setAuthoritys', res.data.authoritys)
-
-    let newRoutes = router.options.routes
-    res.data.nav.forEach(menu =>{
-        if (menu.children){
-            menu.children.forEach(e => {
-                let route = menuToRoute(e)
-            })
-        }
-    })
-
-
-    // 登入后不可进入登入页面
-    if (to.fullPath === '/login' && window.sessionStorage.getItem('token')) {
-        next({
-            path: '/home'
-        })
-    } else {
-        next()
-    }
-})
-
-
-
-export default router

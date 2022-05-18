@@ -54,6 +54,11 @@
 import { reactive, ref } from 'vue'
 import api from '@/axios/index'
 const { Lock, Avatar } = require('@element-plus/icons')
+import { useRouter } from "vue-router"
+import { useStore } from "vuex"
+
+const router = useRouter()
+const store = useStore()
 
 const { ElMessage } = require('element-plus')
 
@@ -98,18 +103,36 @@ const loginFormRules = {
   ]
 }
 
+const userInfo = reactive({
+  id:0,
+  rid:0,
+  email:'',
+  mobile:'',
+  username: '',
+  token: '',
+  useravatar:'',
+  routerList: []
+})
+
 const submitForm = (formEl) => {
   if (!formEl) return
   formEl.validate(async (valid) => {
     if (valid) {
       const { data: res } = await api.post('/login', form)
       if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
-      ElMessage({
-        message: res.meta.msg,
-        type: 'success'
-      })
+      ElMessage.success(res.meta.msg)
       window.sessionStorage.setItem('token', res.data.token)
-      await window.router.push('/home')
+      userInfo.username = res.data.username
+      userInfo.routerList = res.data.routerList
+      userInfo.token = res.data.token
+      userInfo.id = res.data.id
+      userInfo.rid = res.data.rid
+      userInfo.email = res.data.email
+      userInfo.mobile = res.data.mobile
+      userInfo.useravatar = res.data.useravatar
+      //触发登陆，保存信息，添加路由
+      await store.dispatch("users/login", userInfo)
+      await router.push({path: "/home"})
     } else {
       ElMessage.error('提交错误')
     }

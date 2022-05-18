@@ -30,8 +30,8 @@
               </el-icon>
               <span>{{ item.meta.title }}</span>
             </template>
-            <el-menu-item :index="'/'+subitem.path" v-for="subitem in item.children" :key="subitem.id"
-                          @click="saveNavstate('/'+subitem.path)">
+            <el-menu-item :index="'/home/'+subitem.path" v-for="subitem in item.children" :key="subitem.id"
+                          @click="saveNavstate(subitem)">
               <template #title>
                 <el-icon>
                   <Menu/>
@@ -67,22 +67,20 @@
         </el-dropdown>
       </el-header>
       <el-main>
-        <Bread/>
-        <router-view></router-view>
+        <Tabs></Tabs>
+          <router-view></router-view>
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script setup>
-import Bread from '@/components/utility/BreadTools'
 import {reactive, ref, shallowRef} from 'vue'
-import api from "@/axios";
 import{ useStore }from"vuex"
+import Tabs from '@/components/utils/Tabs'
 
 const {HomeFilled, Avatar, Checked, Goods, List, PieChart, Menu} = require('@element-plus/icons')
 
-const { ElMessage } = require('element-plus')
 const {
   onBeforeMount
 } = require('vue')
@@ -97,14 +95,6 @@ const showClick = () => {
   dropdown1.value.handleOpen()
 }
 
-// 获取用户信息
-const getUserInfo = async () => {
-  const { data: res } = await api.get('/sys/userinfo')
-  if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
-  userinfo.user_avatar = res.data.user_avatar
-  userinfo.user_name = res.data.user_name
-  userinfo.user_id = res.data.user_id
-}
 
 const iconObj = shallowRef({
   101: Avatar,
@@ -121,34 +111,30 @@ const toggleCollapse = () => {
 }
 
 const userinfo = reactive({
-  user_id:0,
-  user_avatar:'',
-  user_name:''
+  user_id:store.getters.userInfo.id,
+  user_avatar:store.getters.userInfo.useravatar,
+  user_name:store.getters.userInfo.username
 })
+
 onBeforeMount(async () => {
-  meunsList.value = store.state.menus.menuList
-  getUserInfo()
+  meunsList.value = store.getters.userInfo.routerList
   defactivePath.value = window.sessionStorage.getItem('activePath')
 })
 
-// const getMenuList = async () => {
-// const { data: res } = await api.get('/menus')
-// if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
-// return res.data.nav
-// }
-
-const saveNavstate = (activePath) => {
-  window.sessionStorage.setItem('activePath', activePath)
-  defactivePath.value = activePath
+const saveNavstate = (subitem) => {
+  window.sessionStorage.setItem('activePath', '/home/'+subitem.path)
+  defactivePath.value = subitem.path
+  store.dispatch('menus/add_tabs',subitem)
 }
 
-// 登出
-const logout = () => {
+
+//注销
+const logout = async () => {
   window.sessionStorage.clear()
-  window.router.push('/login')
+  await store.dispatch("users/logout")
+  // console.log(49, res)
+  await window.router.push({ path: "/login" })
 }
-
-
 
 </script>
 
@@ -191,6 +177,7 @@ const logout = () => {
 
 .el-main {
   background-color: #ffffff;
+  padding: 0px;
 }
 
 .toggle-button {

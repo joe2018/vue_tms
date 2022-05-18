@@ -1,6 +1,6 @@
 <template>
   <div>
-    123
+    数据字典
   </div>
 </template>
 

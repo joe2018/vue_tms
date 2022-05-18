@@ -1,5 +1,5 @@
 import axios from 'axios'
-import router from '@/router'
+import {router} from '@/router'
 import qs from 'qs'
 
 // 创建axios实例
