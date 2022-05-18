@@ -11,7 +11,7 @@
 import {router} from "@/router";
 
 const tmp = () => {
-  router.push('/home/sys/user')
+  router.push('/home/user')
 }
 
 </script>

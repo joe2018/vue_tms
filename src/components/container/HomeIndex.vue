@@ -17,7 +17,7 @@
             :collapse-transition="false"
             :router="true"
         >
-          <el-menu-item index="/home">
+          <el-menu-item index="/welcome" @click="actHomeTabs">
             <template #title>
               <el-icon><HomeFilled /></el-icon>
               <span>首页</span>
@@ -78,6 +78,7 @@
 import {reactive, ref, shallowRef} from 'vue'
 import{ useStore }from"vuex"
 import Tabs from '@/components/utils/Tabs'
+import {computed} from "@vue/reactivity";
 
 const {HomeFilled, Avatar, Checked, Goods, List, PieChart, Menu} = require('@element-plus/icons')
 
@@ -103,7 +104,16 @@ const iconObj = shallowRef({
   140: List,
   130: PieChart
 })
-const defactivePath = ref('')
+
+const defactivePath = computed({
+  get:()=>{
+    return store.getters.activePath
+  },
+  set:(newValue)=>{
+    store.dispatch('menus/active_path',newValue)
+  }
+})
+
 const isCollapse = ref(false)
 
 const toggleCollapse = () => {
@@ -118,13 +128,16 @@ const userinfo = reactive({
 
 onBeforeMount(async () => {
   meunsList.value = store.getters.userInfo.routerList
-  defactivePath.value = window.sessionStorage.getItem('activePath')
+  defactivePath.value = store.getters.activePath
 })
 
 const saveNavstate = (subitem) => {
-  window.sessionStorage.setItem('activePath', '/home/'+subitem.path)
   defactivePath.value = subitem.path
   store.dispatch('menus/add_tabs',subitem)
+}
+
+const actHomeTabs = () => {
+  store.dispatch('menus/act_home','welcome')
 }
 
 

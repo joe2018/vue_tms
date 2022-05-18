@@ -92,6 +92,7 @@ const actions = {
                     useravatar:"",
                     routerList: []
                 })
+                //删除路由
                 resolve("注销 success， 清空路由，用户信息")
             })
         }
