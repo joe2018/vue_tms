@@ -46,12 +46,11 @@ const mutations =  {
         state.editableTabsValue = activeName
         state.editableTabs = tabs.filter((tab) => tab.name !== targetName)
     },
-    ACT_HOME(state,val){
-        state.editableTabsValue = val
-
-    },
     ACTIVE_PATH(state,val){
         state.activePath = val
+    },
+    SET_EDITABLETABS(state,val){
+        state.editableTabsValue = val
     }
 }
 const actions = {
@@ -61,12 +60,13 @@ const actions = {
     removeTab({ commit }, targetName){
         commit("REMOVE_TAB", targetName)
     },
-    act_home({ commit },val){
-        commit("ACT_HOME",val)
-    },
     active_path({ commit },val){
         commit("ACTIVE_PATH",val)
-    }
+    },
+    set_editabletabs({ commit },val){
+        console.log(1,val)
+        commit("SET_EDITABLETABS",val)
+    },
 }
 
 export default {

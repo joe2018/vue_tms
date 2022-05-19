@@ -137,7 +137,7 @@ const saveNavstate = (subitem) => {
 }
 
 const actHomeTabs = () => {
-  store.dispatch('menus/act_home','welcome')
+  store.dispatch('menus/set_editabletabs','welcome')
 }
 
 
@@ -145,9 +145,13 @@ const actHomeTabs = () => {
 const logout = async () => {
   window.sessionStorage.clear()
   await store.dispatch("users/logout")
+  window.location.reload()
+  window.localStorage.clear()
   // console.log(49, res)
   await window.router.push({ path: "/login" })
+
 }
+
 
 </script>
 

@@ -26,36 +26,39 @@ const store = useStore();
 const editableTabsValue = computed({
   get:()=>{
     return store.getters.editableTabsValue
+  },
+  set:(newVal)=>{
+    return store.dispatch('menus/set_editabletabs',newVal)
   }
 })
 
+console.log(editableTabsValue.value)
 const editableTabs = computed({
   get:()=>{
     return store.getters.editableTabs
   }
 })
 
-const removeTab =async (targetName) =>{
-  await store.dispatch('menus/removeTab',targetName)
+const removeTab = (targetName) =>{
+  store.dispatch('menus/removeTab',targetName)
   const activeName = store.getters.editableTabsValue
   if ('welcome' === activeName){
-    await store.dispatch('menus/active_path','/'+activeName)
-    await window.router.push('/'+activeName)
+     store.dispatch('menus/active_path','/'+activeName)
+     window.router.push('/'+activeName)
   }else {
-    await store.dispatch('menus/active_path','/home/'+activeName)
-    await window.router.push('/home/'+activeName)
+     store.dispatch('menus/active_path','/home/'+activeName)
+     window.router.push('/home/'+activeName)
   }
 }
 
-const actionTab = async (TabsPaneContext) =>{
+const actionTab =  (TabsPaneContext) =>{
   if ('welcome' === TabsPaneContext.props.name){
-    await store.dispatch('menus/active_path','/'+TabsPaneContext.props.name)
-    await window.router.push('/'+TabsPaneContext.props.name)
+    store.dispatch('menus/active_path','/'+TabsPaneContext.props.name)
+    window.router.push('/'+TabsPaneContext.props.name)
   }else {
-    await store.dispatch('menus/active_path','/home/'+TabsPaneContext.props.name)
-    await window.router.push('/home/'+TabsPaneContext.props.name)
+    store.dispatch('menus/active_path','/home/'+TabsPaneContext.props.name)
+    window.router.push('/home/'+TabsPaneContext.props.name)
   }
-
 }
 
 
