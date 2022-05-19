@@ -3,7 +3,7 @@
     <el-aside :width="isCollapse?'64px':'200px'">
       <div class="logo-box">
         <img src="../../assets/logo.png" alt=""/>
-        <span>{{isCollapse?'':'电商管理后台'}}</span>
+        <span>{{isCollapse?'':'TMS管理系统'}}</span>
       </div>
       <div class="toggle-button" @click="toggleCollapse">|||</div>
       <div>
@@ -68,7 +68,9 @@
       </el-header>
       <el-main>
         <Tabs></Tabs>
+        <div style="margin: 0 15px;">
           <router-view></router-view>
+        </div>
       </el-main>
     </el-container>
   </el-container>
@@ -82,9 +84,7 @@ import {computed} from "@vue/reactivity";
 
 const {HomeFilled, Avatar, Checked, Goods, List, PieChart, Menu} = require('@element-plus/icons')
 
-const {
-  onBeforeMount
-} = require('vue')
+const {onBeforeMount} = require('vue')
 
 const store = useStore();
 

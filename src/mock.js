@@ -56,25 +56,25 @@ Mock.mock('/login','post',(option)=>{
                     "children": [
                         {
                             "id": 121,
-                            "name": "user",
-                            "path": "user",
-                            'component':'sys/UserIndex',
+                            "name": "users",
+                            "path": "users",
+                            'component':'sys/Users',
                             "children": [],
                             'meta': {'title': '用户管理'},
                         },
                         {
                             "id": 122,
-                            "name": "role",
-                            "path": "role",
-                            'component':'sys/RoleIndex',
+                            "name": "roles",
+                            "path": "roles",
+                            'component':'sys/Roles',
                             "children": [],
                             'meta': {'title': '角色管理'},
                         },
                         {
                             "id": 123,
-                            "name": "menus",
+                            "name": "Menus",
                             "path": "menus",
-                            'component':'sys/MenusIndex',
+                            'component':'sys/Menus',
                             "children": [],
                             'meta': {'title': '菜单管理'},
                         }
@@ -89,7 +89,7 @@ Mock.mock('/login','post',(option)=>{
                             "id": 131,
                             "name": "dict",
                             "path": "dict",
-                            'component':'tools/DictIndex',
+                            'component':'tools/Dict',
                             'meta': {'title': '数字字典'},
                             "children": [],
 

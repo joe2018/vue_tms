@@ -3,13 +3,15 @@
  */
 import { router } from "@/router"
 import store from "@/store"
-import { ElMessage } from "element-plus"
 
 //const whiteRouter = ["login", "404"] //路由白名单，不需要添加路由和登陆
 
 router.beforeEach(async (to, from, next) => {
   //有用户信息
   if (sessionStorage.getItem('token')) {
+    if (to.path === "/login" || to.path === '/') {
+      next('/home')
+    }
     //获取用户信息
     let userInfo  = store.getters.userInfo
     // const { username } = userInfo
@@ -45,7 +47,6 @@ router.beforeEach(async (to, from, next) => {
     if (to.path === "/login") {
       next()
     } else {
-      ElMessage.error("请先登陆！")
       next("/login")
     }
   }

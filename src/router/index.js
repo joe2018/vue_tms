@@ -1,7 +1,7 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
-import HomeIndex from '../components/container/HomeIndex'
-import Login from '../components/login/loginIndex'
-import WelcomeIndex from '../components/home/WelcomeIndex'
+import HomeIndex from '../components/container/Home'
+import Login from '../components/login/login'
+import WelcomeIndex from '../components/home/Welcome'
 import UserCenter from '../components/home/UserCenter'
 import nullPage from '@/views/404'
 
