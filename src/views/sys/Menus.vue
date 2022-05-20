@@ -1,12 +1,12 @@
 <template>
   <div>
-    <row>
+    <el-row>
       <el-row :gutter="20">
         <el-col :span="6"><div class="grid-content bg-purple" />
           <el-button type="primary" @click="addMenuVisible = true" >新增权限</el-button>
         </el-col>
       </el-row>
-    </row>
+    </el-row>
     <el-table
         :data="tableData"
         style="width: 100%; margin-bottom: 20px"
