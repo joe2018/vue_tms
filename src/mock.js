@@ -72,11 +72,11 @@ Mock.mock('/login','post',(option)=>{
                         },
                         {
                             "id": 123,
-                            "name": "Menus",
+                            "name": "menus",
                             "path": "menus",
                             'component':'sys/Menus',
                             "children": [],
-                            'meta': {'title': '菜单管理'},
+                            'meta': {'title': '权限列表'},
                         }
                     ]
                 },

@@ -30,7 +30,7 @@
               </el-icon>
               <span>{{ item.meta.title }}</span>
             </template>
-            <el-menu-item :index="'/home/'+subitem.path" v-for="subitem in item.children" :key="subitem.id"
+            <el-menu-item :index="'/'+subitem.path" v-for="subitem in item.children" :key="subitem.id"
                           @click="saveNavstate(subitem)">
               <template #title>
                 <el-icon>
@@ -126,7 +126,7 @@ const userinfo = reactive({
   user_name:store.getters.userInfo.username
 })
 
-onBeforeMount(async () => {
+onBeforeMount( () => {
   meunsList.value = store.getters.userInfo.routerList
   defactivePath.value = store.getters.activePath
 })
@@ -147,7 +147,6 @@ const logout = async () => {
   await store.dispatch("users/logout")
   window.location.reload()
   window.localStorage.clear()
-  // console.log(49, res)
   await window.router.push({ path: "/login" })
 
 }

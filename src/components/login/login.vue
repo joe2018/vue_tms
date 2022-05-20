@@ -132,7 +132,7 @@ const submitForm = (formEl) => {
       userInfo.useravatar = res.data.useravatar
       //触发登陆，保存信息，添加路由
       await store.dispatch("users/login", userInfo)
-      await router.push({path: "/home"})
+      await router.push({path: "/welcome"})
     } else {
       ElMessage.error('提交错误')
     }

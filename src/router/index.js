@@ -7,11 +7,6 @@ import nullPage from '@/views/404'
 
 const routes = [
     {
-        // 重定向
-        path: '/',
-        redirect: '/login'
-    },
-    {
         path: '/login',
         name: 'login',
         component: Login
@@ -22,7 +17,7 @@ const routes = [
         component: nullPage
     },
     {
-        path: '/home',
+        path: '/',
         name: 'home',
         component: HomeIndex,
         redirect: '/welcome',

@@ -1,7 +1,7 @@
 <template>
   <div class="p-name">
     404
-    <el-button @click="$router.push('/home')">返回首页</el-button>
+    <el-button @click="$router.push('/welcome')">返回首页</el-button>
   </div>
 </template>
 <script setup>

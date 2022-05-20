@@ -3,6 +3,7 @@
       v-model="editableTabsValue"
       type="card"
       closable
+      editable
       @tab-remove="removeTab"
       @tab-click="actionTab"
   >
@@ -32,7 +33,6 @@ const editableTabsValue = computed({
   }
 })
 
-console.log(editableTabsValue.value)
 const editableTabs = computed({
   get:()=>{
     return store.getters.editableTabs
@@ -42,23 +42,14 @@ const editableTabs = computed({
 const removeTab = (targetName) =>{
   store.dispatch('menus/removeTab',targetName)
   const activeName = store.getters.editableTabsValue
-  if ('welcome' === activeName){
-     store.dispatch('menus/active_path','/'+activeName)
-     window.router.push('/'+activeName)
-  }else {
-     store.dispatch('menus/active_path','/home/'+activeName)
-     window.router.push('/home/'+activeName)
-  }
+  store.dispatch('menus/active_path',activeName)
+  window.router.push('/'+activeName)
 }
 
 const actionTab =  (TabsPaneContext) =>{
-  if ('welcome' === TabsPaneContext.props.name){
-    store.dispatch('menus/active_path','/'+TabsPaneContext.props.name)
-    window.router.push('/'+TabsPaneContext.props.name)
-  }else {
-    store.dispatch('menus/active_path','/home/'+TabsPaneContext.props.name)
-    window.router.push('/home/'+TabsPaneContext.props.name)
-  }
+  store.dispatch('menus/active_path','/'+TabsPaneContext.props.name)
+  window.router.push('/'+TabsPaneContext.props.name)
+
 }
 
 

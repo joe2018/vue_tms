@@ -21,14 +21,12 @@ const mutations =  {
             state.userInfo = val
         },
         ADD_ROUTE(state) {
-            // console.log("路由添加前", router.getRoutes())
             //路由未添加之前是3个,我们判断是否添加过，没添加过就添加
-            if (router.getRoutes().length === 6) {
+            if (router.getRoutes().length === 5) {
                 let addRouterList = filterAsyncRouter(
                     //这里深拷贝下，不然会出问题
                     JSON.parse(JSON.stringify(state.userInfo.routerList))
                 )
-                // console.log(1111,addRouterList)
                 addRouterList.forEach((i) => {
                     if (i.children.length > 0){
                         i.children.forEach(item => {
@@ -37,7 +35,6 @@ const mutations =  {
                     }
                 })
             }
-            // console.log("路由添加后", router.getRoutes())
         },
 }
 const actions = {
@@ -47,7 +44,6 @@ const actions = {
             return new Promise((resolve) => {
                 //登陆，获取用户信息， 权限路由列表
                 //假设返回的有token, 路由列表(根据不同用户返回不同)
-                // console.log(56, routerList)
                 //把用户信息存入vuex
                 commit("SET_USER_INFO", {
                     id,
@@ -59,7 +55,6 @@ const actions = {
                     useravatar,
                     routerList
                 })
-                // console.log("login over")
                 //添加路由
                 //commit("ADD_ROUTE")
                 resolve()
@@ -72,7 +67,6 @@ const actions = {
         //注销
         logout({ commit, state }) {
             return new Promise((resolve) => {
-                console.log(state.userInfo.token, "注销了")
                 //拷贝一下
                 const delRouterList = JSON.parse(
                     JSON.stringify(state.userInfo.routerList)

@@ -4,8 +4,7 @@ const state = {
         title:'首页',
         name:'welcome',
     }],
-    activePath:'/welcome'
-
+    activePath:'welcome',
 }
 const mutations =  {
     ADD_TABS(state,tab){
@@ -21,15 +20,16 @@ const mutations =  {
                 name: tab.name,
             })
             state.editableTabsValue = tab.name
+            state.activePath = '/'+tab.path
         }else {
-            console.log(tab.name)
             state.editableTabsValue = tab.name
-            console.log(state.editableTabsValue)
+            state.activePath = '/'+tab.path
         }
     },
     REMOVE_TAB(state,targetName){
+
         if ('welcome' === targetName){
-            return
+            return 0
         }
         const tabs = state.editableTabs
         let activeName = state.editableTabsValue
@@ -64,7 +64,6 @@ const actions = {
         commit("ACTIVE_PATH",val)
     },
     set_editabletabs({ commit },val){
-        console.log(1,val)
         commit("SET_EDITABLETABS",val)
     },
 }
