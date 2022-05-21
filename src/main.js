@@ -7,7 +7,6 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import dayjs from 'dayjs'
 
-
 // 导入全局样式
 import './assets/css/global.css'
 
@@ -20,7 +19,7 @@ import "@/utils/permission"
 
 window.router = router
 
-require('./mock')
+// require('./mock')
 
 setupStore(app)
 app.use(ElementPlus)

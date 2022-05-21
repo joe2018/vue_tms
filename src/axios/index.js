@@ -4,16 +4,13 @@ import qs from 'qs'
 
 // 创建axios实例
 const api = axios.create({
-    // baseURL: 'http://localhost:8080/',
-    // headers:{
-    //     'Content-Type' : 'application/json; charset=utf-8'
-    // },
+    baseURL: 'http://localhost:8888/',
     timeout: 1000
 })
 
 // 2.请求拦截器
 api.interceptors.request.use(config => {
-    config.headers.Authorization = window.sessionStorage.getItem('token')
+    config.headers.Authorization = 'bearer ' + window.sessionStorage.getItem('token')
     // 发请求前做的一些处理，数据转化，配置请求头，设置token,设置loading等，根据需求去添加
     if (config.method.toLowerCase() === 'get') { // 配置get请求数据(这里是容错处理)
         if (config.data !== undefined) config.params = config.data

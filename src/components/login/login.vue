@@ -56,6 +56,7 @@ import api from '@/axios/index'
 const { Lock, Avatar } = require('@element-plus/icons')
 import { useRouter } from "vue-router"
 import { useStore } from "vuex"
+import qs from 'qs'
 
 const router = useRouter()
 const store = useStore()
@@ -65,9 +66,10 @@ const { ElMessage } = require('element-plus')
 const loginFormRef = ref('')
 
 const form = reactive({
-  username: 'admin',
-  password: '123456',
-  code: 'p7wy5'
+  username: '',
+  password: '',
+  code: '',
+  key:''
 })
 const {
   onBeforeMount
@@ -79,8 +81,9 @@ const captchaImg = ref('')
 // 获取验证码图片
 const getCaptchaImg = async () => {
   const { data: res } = await api.get('/captcha')
-  if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
-  captchaImg.value = res.data.captchaImg
+  if (res.status !== 200) return ElMessage.error(res.msg)
+  captchaImg.value = res.obj.captchaImg
+  form.key = res.obj.token
 }
 
 
@@ -113,28 +116,34 @@ const userInfo = reactive({
   useravatar:'',
   routerList: []
 })
-
+// JWuKdAmbMpnxCLg48UMLueEEGdq69lV5
+// MXGFcki/aIH7AqNf7Wk0uo7UHRuTfkZwaZ9+dXqV
 const submitForm = (formEl) => {
   if (!formEl) return
   formEl.validate(async (valid) => {
     if (valid) {
-      const { data: res } = await api.post('/login', form)
-      if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
-      ElMessage.success(res.meta.msg)
-      window.sessionStorage.setItem('token', res.data.token)
-      userInfo.username = res.data.username
-      userInfo.routerList = res.data.routerList
-      userInfo.token = res.data.token
-      userInfo.id = res.data.id
-      userInfo.rid = res.data.rid
-      userInfo.email = res.data.email
-      userInfo.mobile = res.data.mobile
-      userInfo.useravatar = res.data.useravatar
-      //触发登陆，保存信息，添加路由
-      await store.dispatch("users/login", userInfo)
+      const res  = await api.post('/login', form)
+      if (res.data.status !== 200){
+        ElMessage.error(res.msg)
+        getCaptchaImg()
+      }
+      ElMessage.success(res.data.msg)
+      const jwt = res.headers['authorization']
+      window.sessionStorage.setItem('token', jwt)
+      // userInfo.username = res.data.username
+      // userInfo.routerList = res.data.routerList
+      // userInfo.token = res.data.token
+      // userInfo.id = res.data.id
+      // userInfo.rid = res.data.rid
+      // userInfo.email = res.data.email
+      // userInfo.mobile = res.data.mobile
+      // userInfo.useravatar = res.data.useravatar
+      // //触发登陆，保存信息，添加路由
+      // await store.dispatch("users/login", userInfo)
       await router.push({path: "/welcome"})
     } else {
-      ElMessage.error('提交错误')
+      ElMessage.error('提交错误');
+      return false;
     }
   })
 }

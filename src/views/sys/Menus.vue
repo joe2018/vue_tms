@@ -3,7 +3,7 @@
     <el-row>
       <el-row :gutter="20">
         <el-col :span="6"><div class="grid-content bg-purple" />
-          <el-button type="primary" @click="addMenuVisible = true" >新增权限</el-button>
+          <el-button type="primary" @click="addMenuVisible = true" v-if="hasAuth('sys:menu:save')">新增权限</el-button>
         </el-col>
       </el-row>
     </el-row>
@@ -13,9 +13,10 @@
         row-key="id"
         border
         stripe
+        table-layout="fixed"
 
     >
-      <el-table-column prop="name" fixed label="名称" sortable  />
+      <el-table-column prop="name" fixed label="名称" sortable  width="180"/>
       <el-table-column prop="perms" label="权限编码"   />
       <el-table-column prop="icon" label="图标"   />
       <el-table-column prop="type" label="类型"   >
@@ -34,49 +35,71 @@
           <el-tag v-if="scope.row.state === 1 " type="warning">正常</el-tag>
         </template>
       </el-table-column>
-      <el-table-column  label="操作" fixed="right"  width="180" style="width: 130px">
+      <el-table-column  label="操作" fixed="right"  width="130" >
         <template v-slot="scope">
-          <el-button type="primary" text @click="editDialogOpen(scope.row)">编辑</el-button>
-          <el-divider direction="vertical"></el-divider>
-          <el-button type="danger" text @click="removeDialogOpen(scope.row)">删除</el-button>
+          <!--            编辑-->
+          <el-tooltip
+              effect="dark"
+              content="编辑"
+              placement="top"
+              :enterable="false"
+          >
+            <el-button type="primary" size="small" :icon="Edit" @click="editDialogOpen(scope.row.id)"/>
+          </el-tooltip>
+          <!--            删除-->
+          <el-tooltip
+              effect="dark"
+              content="删除"
+              placement="top"
+              :enterable="false"
+          >
+            <el-button type="danger" size="small" :icon="Delete" @click="removeDialogOpen(scope.row.id)"></el-button>
+          </el-tooltip>
         </template>
       </el-table-column>
     </el-table>
     <!-- 新增权限 -->
-    <el-dialog v-model="addMenuVisible" title="新增权限" @close="addDialogClosed(addFormRef)">
+    <el-dialog
+        v-model="addMenuVisible"
+        width="35%"
+        title="新增权限"
+        :close-on-click-modal="false"
+        @close="addDialogClosed(addFormRef)"
+    >
       <el-form
           ref="addFormRef"
           :model="addForm"
           :rules="addFormRules"
-          label-width="130px"
+          label-width="100px"
       >
         <el-form-item label="上级菜单" prop="father">
           <el-cascader
-              :options="parentCateList"
+              :options="tableData"
               :props="cascaderProps"
               clearable
               v-model="selectedKeys"
               @change="parentCateChanged"
+              style="width: 300px;"
 
           />
         </el-form-item>
         <el-form-item label="菜单名称" prop="name">
-          <el-input v-model="addForm.name" />
+          <el-input v-model="addForm.name" style="width: 300px;"/>
         </el-form-item>
         <el-form-item label="权限编码" prop="perms">
-          <el-input v-model="addForm.perms" />
+          <el-input v-model="addForm.perms" style="width: 300px;"/>
         </el-form-item>
         <el-form-item label="图标" >
-          <el-input v-model="addForm.icon" />
+          <el-input v-model="addForm.icon" style="width: 300px;"/>
         </el-form-item>
         <el-form-item label="菜单URL" >
-          <el-input v-model="addForm.path" />
+          <el-input v-model="addForm.path" style="width: 300px;"/>
         </el-form-item>
         <el-form-item label="菜单组件" >
-          <el-input v-model="addForm.component" />
+          <el-input v-model="addForm.component" style="width: 300px;"/>
         </el-form-item>
         <el-form-item label="类型" prop="type">
-          <el-radio-group v-model="addForm.type">
+          <el-radio-group v-model="addForm.type" >
             <el-radio :label="0">目录</el-radio>
             <el-radio :label="1">菜单</el-radio>
             <el-radio :label="2">按钮</el-radio>
@@ -99,18 +122,110 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+<!--    编辑权限-->
+    <el-dialog
+        v-model="editMenuVisible"
+        width="35%"
+        title="编辑权限"
+        :close-on-click-modal="false"
+        @close="editDialogClosed(editFormRef)"
+    >
+      <el-form
+          ref="editFormRef"
+          :model="editForm"
+          :rules="addFormRules"
+          label-width="100px"
+
+      >
+        <el-form-item label="上级菜单" prop="father">
+          <el-cascader
+              :options="parentCateList"
+              :props="cascaderProps"
+              clearable
+              v-model="selectedKeys"
+              @change="parentCateChanged"
+              style="width: 300px;"
+
+          />
+        </el-form-item>
+        <el-form-item label="菜单名称" prop="name">
+          <el-input v-model="editForm.name" style="width: 300px;"/>
+        </el-form-item>
+        <el-form-item label="权限编码" prop="perms">
+          <el-input v-model="editForm.perms" style="width: 300px;"/>
+        </el-form-item>
+        <el-form-item label="图标" >
+          <el-input v-model="editForm.icon" style="width: 300px;"/>
+        </el-form-item>
+        <el-form-item label="菜单URL" >
+          <el-input v-model="editForm.path" style="width: 300px;"/>
+        </el-form-item>
+        <el-form-item label="菜单组件" >
+          <el-input v-model="editForm.component" style="width: 300px;"/>
+        </el-form-item>
+        <el-form-item label="类型" prop="type">
+          <el-radio-group v-model="editForm.type" >
+            <el-radio :label="0">目录</el-radio>
+            <el-radio :label="1">菜单</el-radio>
+            <el-radio :label="2">按钮</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="状态" prop="state">
+          <el-radio-group v-model="editForm.state">
+            <el-radio :label="0">禁用</el-radio>
+            <el-radio :label="1">正常</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="排序号" prop="orderNum">
+          <el-input-number v-model="editForm.orderNum" :min="1" :max="10" />
+        </el-form-item>
+        <!--        按钮区域-->
+        <el-form-item>
+          <el-button type="primary" @click="editFormSubmit(editFormRef)">提交</el-button>
+          <el-button @click="editFormReset(editFormRef)">重置</el-button>
+          <el-button @click="editMenuVisible = false">关闭</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 // import api from '@/axios/index'
-// const { ElMessage } = require('element-plus')
-
+import hasAuth from '@/utils/HasAuth'
+const { ElMessage, ElMessageBox } = require('element-plus')
+const {  Edit, Delete } = require('@element-plus/icons')
 
 import {reactive, ref} from "vue";
 
 
 //-------- 新增权限相关 开始----------
+
+// 选中项发送变化时触发
+const parentCateChanged = () => {
+  if (selectedKeys.value) {
+    if (selectedKeys.value.length > 0) {
+      console.log(selectedKeys)
+    }
+  } else {
+    console.log(selectedKeys)
+  }
+}
+
+// 父级分类的列表
+const parentCateList = ref()
+
+// 指定级联选择器的配置对象
+const cascaderProps = reactive({
+  value: 'id',
+  label: 'name',
+  children: 'children',
+  expandTrigger: 'hover',
+  checkStrictly: true
+})
+
+// 选中的父级分类的Id数组
+const selectedKeys = ref([])
 
 // 新增权限表单代理
 const addFormRef = ref()
@@ -189,51 +304,140 @@ const addFormReset = (formEl) => {
 //     }
 //   }
 // }
-//-------- 新增权限相关 结束----------
+//-------- 新增权限相关 结束 ----------
 
-//编辑对话框函数
+//------- 编辑权限相关 开始 ---------
+
+// 编辑对话框函数
 const editDialogOpen =()=>{
-
+  editMenuVisible.value = true
 }
+
+// 编辑权限弹窗状态记录
+const editMenuVisible = ref()
+
+// 编辑权限表单
+const editForm = reactive({
+  name:'',
+  perms:'',
+  icon:'',
+  path:'',
+  component:'',
+  type:0,
+  state:0,
+  orderNum:1
+})
+
+// 编辑权限表单代理
+const editFormRef = ref()
+
+// 关闭新增权限弹窗事件
+const editDialogClosed = (formEl) => {
+  formEl.resetFields()
+}
+
+// 编辑权限表单提交
+const editFormSubmit = (formEl) => {
+  formEl.resetFields()
+}
+
+// 编辑权限表单重置
+const editFormReset = (formEl) => {
+  formEl.resetFields()
+}
+
+
+//-------- 编辑权限相关 结束 ----------
 
 //删除权限函数
-const removeDialogOpen =()=>{
-
+const removeDialogOpen = (id) => {
+  ElMessageBox.confirm(
+      '是否删除该权限？'+id,
+      '警告',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+  )
+      .then(async () => {
+        // const { data: res } = await api.delete('roles/' + id)
+        // if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
+        // ElMessage.success(res.meta.msg)
+        // getRolesList()
+      })
+      .catch(() => {
+        // getRolesList()
+        ElMessage.info('未执行删除操作')
+      })
 }
 
 
-const tableData = reactive([
+const tableData = [
   {
     id: 1,
-    date: '2016-05-02',
+    perms: '2016-05-02',
     name: 'wangxiaohu',
     type:0,
-    state:0
+    state:0,
+    children:[
+      {
+        id: 11,
+        perms: '2016-05-01',
+        name: 'wangxiaohu',
+        state:1,
+        type:1
+      },
+      {
+        id: 12,
+        perms: '2016-05-01',
+        name: 'wangxiaohu',
+        type:2,
+        state:0
+      },
+    ],
+
   },
   {
     id: 2,
-    date: '2016-05-04',
+    perms: '2016-05-04',
     name: 'wangxiaohu',
     type:0,
-    state:1
+    state:1,
+    children:[
+      {
+        id: 21,
+        perms: '2016-05-01',
+        name: 'wangxiaohu',
+        state:1,
+        type:1
+      },
+      {
+        id: 22,
+        perms: '2016-05-01',
+        name: 'wangxiaohu',
+        type:2,
+        state:0
+      },
+    ],
   },
   {
     id: 3,
-    date: '2016-05-01',
+    perms: '2016-05-01',
     name: 'wangxiaohu',
     type:0,
     state:0,
     children: [
       {
         id: 31,
-        date: '2016-05-01',
+        perms: '2016-05-01',
         name: 'wangxiaohu',
         state:1,
         type:1
       },
       {
         id: 32,
-        date: '2016-05-01',
+        perms: '2016-05-01',
         name: 'wangxiaohu',
         type:2,
         state:0
@@ -242,12 +446,28 @@ const tableData = reactive([
   },
   {
     id: 4,
-    date: '2016-05-03',
+    perms: '2016-05-03',
     name: 'wangxiaohu',
     type:0,
     state:0,
+    children:[
+      {
+        id: 41,
+        perms: '2016-05-01',
+        name: 'wangxiaohu',
+        state:1,
+        type:1
+      },
+      {
+        id: 42,
+        perms: '2016-05-01',
+        name: 'wangxiaohu',
+        type:2,
+        state:0
+      },
+    ],
   },
-])
+]
 </script>
 
 <style lang="less" scoped>

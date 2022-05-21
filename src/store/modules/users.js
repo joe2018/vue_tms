@@ -14,7 +14,8 @@ const state = {
             token: '',
             useravatar:'',
             routerList: []
-        }
+        },
+        permList:['sys:menu:save']
     }
 const mutations =  {
         SET_USER_INFO(state, val) {
