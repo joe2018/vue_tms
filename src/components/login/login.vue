@@ -58,6 +58,7 @@ import { useRouter } from "vue-router"
 import { useStore } from "vuex"
 import {filterAsyncRouter} from "@/utils/menus";
 import { add_route } from '@/utils/addRoute'
+import Lrequest from "@/axios/loginRequest";
 
 const router = useRouter()
 const store = useStore()
@@ -123,7 +124,7 @@ const submitForm = (formEl) => {
   if (!formEl) return
   formEl.validate( async (valid) => {
     if (valid) {
-      const res  =  await api.post('/login', form)
+      const res  =  await Lrequest.post('/login', form)
       if (res.data.status !== 200){
         ElMessage.error(res.data.msg)
         await getCaptchaImg()

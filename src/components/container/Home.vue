@@ -198,12 +198,14 @@ const removeTab = (targetName) =>{
     window.router.push('/'+activeName)
     window.sessionStorage.setItem('editableTabsValue',editableTabsValue.value)
     window.sessionStorage.setItem('activeIndex',activeName)
-    window.sessionStorage.setItem('editableTabs',JSON.stringify(editableTabs))
+    window.sessionStorage.setItem('editableTabs',JSON.stringify(editableTabs.value))
 }
 
 const actionTab =  (TabsPaneContext) =>{
   activeIndex.value = TabsPaneContext.props.name
+  editableTabsValue.value = TabsPaneContext.props.name
   window.sessionStorage.setItem('activeIndex',TabsPaneContext.props.name)
+  window.sessionStorage.setItem('editableTabsValue',TabsPaneContext.props.name)
   window.router.push(activeIndex.value)
 
 }

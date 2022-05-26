@@ -3,7 +3,7 @@
     <el-row>
       <el-row :gutter="20">
         <el-col :span="6"><div class="grid-content bg-purple" />
-          <el-button type="primary" @click="addMenuVisible = true" v-if="hasAuth('sys:menus:save')">新增权限</el-button>
+          <el-button type="primary" @click="openAddMenuDialog" v-if="hasAuth('sys:menus:save')">新增权限</el-button>
         </el-col>
       </el-row>
     </el-row>
@@ -28,11 +28,21 @@
       </el-table-column>
       <el-table-column prop="path" label="菜单URL"  />
       <el-table-column prop="component" label="菜单组件"   />
-      <el-table-column prop="orderNum" label="排序号" sortable  />
-      <el-table-column prop="state" label="状态" sortable  >
+      <el-table-column prop="ordernum" label="排序号" sortable  />
+      <el-table-column prop="statu" label="状态" sortable  >
         <template v-slot="scope">
-          <el-tag v-if="scope.row.state === 0" type="success">禁用</el-tag>
-          <el-tag v-if="scope.row.state === 1 " type="warning">正常</el-tag>
+          <el-tag v-if="scope.row.statu === 0" type="success">禁用</el-tag>
+          <el-tag v-if="scope.row.statu === 1 " type="warning">正常</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="created" label="创建时间"   >
+        <template v-slot="scope">
+          <span>{{$filters.format(scope.row.created)}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="updated" label="更新时间"   >
+        <template v-slot="scope">
+          <span>{{$filters.format(scope.row.updated)}}</span>
         </template>
       </el-table-column>
       <el-table-column  label="操作" fixed="right"  width="130" >
@@ -74,7 +84,7 @@
       >
         <el-form-item label="上级菜单" prop="father">
           <el-cascader
-              :options="tableData"
+              :options="addMenuFatherChangeData"
               :props="cascaderProps"
               clearable
               v-model="selectedKeys"
@@ -105,14 +115,14 @@
             <el-radio :label="2">按钮</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="状态" prop="state">
-          <el-radio-group v-model="addForm.state">
+        <el-form-item label="状态" prop="statu">
+          <el-radio-group v-model="addForm.statu">
             <el-radio :label="0">禁用</el-radio>
             <el-radio :label="1">正常</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="排序号" prop="orderNum">
-          <el-input-number v-model="addForm.orderNum" :min="1" :max="10" />
+        <el-form-item label="排序号" prop="ordernum">
+          <el-input-number v-model="addForm.ordernum" :min="1" :max="10" />
         </el-form-item>
         <!--        按钮区域-->
         <el-form-item>
@@ -139,11 +149,11 @@
       >
         <el-form-item label="上级菜单" prop="father">
           <el-cascader
-              :options="parentCateList"
+              :options="editMenuFatherChangeData"
               :props="cascaderProps"
               clearable
               v-model="selectedKeys"
-              @change="parentCateChanged"
+              @change="editparentCateChanged"
               style="width: 300px;"
 
           />
@@ -170,14 +180,14 @@
             <el-radio :label="2">按钮</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="状态" prop="state">
-          <el-radio-group v-model="editForm.state">
+        <el-form-item label="状态" prop="statu">
+          <el-radio-group v-model="editForm.statu">
             <el-radio :label="0">禁用</el-radio>
             <el-radio :label="1">正常</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="排序号" prop="orderNum">
-          <el-input-number v-model="editForm.orderNum" :min="1" :max="10" />
+        <el-form-item label="排序号" prop="ordernum">
+          <el-input-number v-model="editForm.ordernum" :min="1" :max="10" />
         </el-form-item>
         <!--        按钮区域-->
         <el-form-item>
@@ -191,29 +201,46 @@
 </template>
 
 <script setup>
-// import api from '@/axios/index'
+import api from '@/axios/index'
 import hasAuth from '@/utils/HasAuth'
 const { ElMessage, ElMessageBox } = require('element-plus')
 const {  Edit, Delete } = require('@element-plus/icons')
 
-import {reactive, ref} from "vue";
+import {onBeforeMount, reactive, ref} from "vue";
 
 
 //-------- 新增权限相关 开始----------
 
+const openAddMenuDialog = () => {
+  addMenuFatherChangeData.value = getChangeData()
+  addMenuVisible.value = true
+}
+
+const getChangeData = () =>{
+  tableData.value.forEach(item =>{
+    item.children.forEach(e =>{
+      delete e.children
+    })
+  })
+  return tableData.value
+}
+
+const addMenuFatherChangeData = ref()
+
 // 选中项发送变化时触发
 const parentCateChanged = () => {
   if (selectedKeys.value) {
-    if (selectedKeys.value.length > 0) {
-      console.log(selectedKeys)
+    console.log(1111,selectedKeys.value)
+    if (selectedKeys.value.length > 1) {
+      addForm.parentId = selectedKeys.value[1]
+    }else {
+      addForm.parentId = selectedKeys.value[0]
     }
   } else {
-    console.log(selectedKeys)
+    addForm.parentId = 0
   }
 }
 
-// 父级分类的列表
-const parentCateList = ref()
 
 // 指定级联选择器的配置对象
 const cascaderProps = reactive({
@@ -243,20 +270,21 @@ const addForm = reactive({
   name:'',
   perms:'',
   icon:'',
+  parentId:0,
   path:'',
   component:'',
   type:0,
-  state:0,
-  orderNum:1
+  statu:0,
+  ordernum:3
 })
 
 // 新增权限表单验证
 const addFormRules = reactive({
-  father: [
-    { required: true, message: '不能为空', trigger: 'blur' },
+  // father: [
+    // { required: true, message: '不能为空', trigger: 'blur' },
     // { min: 3, max: 11, message: '用户名长度在 3 到 11个字符', trigger: 'blur' },
     // { validator: checkUsername, trigger: 'blur' }
-  ],
+  // ],
   name: [
     { required: true, message: '不能为空', trigger: 'blur' },
     // { min: 3, max: 11, message: '用户名长度在 3 到 11个字符', trigger: 'blur' },
@@ -270,11 +298,11 @@ const addFormRules = reactive({
     { required: true },
     // { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
   ],
-  state: [
+  statu: [
     { required: true },
     // { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: '请输入正确的手机号码', trigger: 'blur' }
   ],
-  orderNum: [
+  ordernum: [
     { required: true },
     // { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: '请输入正确的手机号码', trigger: 'blur' }
   ]
@@ -282,7 +310,20 @@ const addFormRules = reactive({
 
 // 新增权限表单提交
 const addFormSubmit = (formEl) => {
-  formEl.resetFields()
+  if (!formEl) return
+  formEl.validate( async (valid) => {
+    if (valid) {
+      console.log(addForm)
+      const {data:res}  =  await api.post('sys/menu/save', addForm)
+      console.log(res)
+      if (res.status !== 200){
+        ElMessage.error(res.msg)
+      }
+      addMenuVisible.value = false
+      await getMenuList()
+      ElMessage.success(res.msg)
+    }
+  })
 }
 
 // 新增权限表单重置
@@ -290,26 +331,30 @@ const addFormReset = (formEl) => {
   formEl.resetFields()
 }
 
-// 新增权限表单验证规则函数
-// const checkUsername = (rule, value, callback) => {
-//   const reg = /^[_a-zA-Z0-9]+$/
-//   if (value === '' || value === undefined || value === null) {
-//     callback()
-//   } else {
-//     callback()
-//     if (!reg.test(value)) {
-//       callback(new Error('仅由英文字母，数字以及下划线组成'))
-//     } else {
-//       callback()
-//     }
-//   }
-// }
 //-------- 新增权限相关 结束 ----------
 
 //------- 编辑权限相关 开始 ---------
 
+const editMenuFatherChangeData = ref()
+
 // 编辑对话框函数
-const editDialogOpen =()=>{
+const editDialogOpen =async (id)=>{
+  const {data:res} = await api.get('sys/menu/info/'+id)
+  console.log(res)
+  editForm.parentId = res.obj.parentId
+  editForm.path = res.obj.path
+  editForm.statu = res.obj.statu
+  editForm.ordernum = res.obj.ordernum
+  editForm.name = res.obj.name
+  editForm.component = res.obj.component
+  editForm.icon = res.obj.icon
+  editForm.perms = res.obj.perms
+  editForm.type = res.obj.type
+  editForm.id = res.obj.id
+  if (res.obj.parentId > 0){
+    selectedKeys.value = [res.obj.parentId,res.obj.id]
+  }
+  editMenuFatherChangeData.value = getChangeData()
   editMenuVisible.value = true
 }
 
@@ -318,14 +363,16 @@ const editMenuVisible = ref(false)
 
 // 编辑权限表单
 const editForm = reactive({
+  id:-1,
   name:'',
   perms:'',
   icon:'',
+  parentId:0,
   path:'',
   component:'',
   type:0,
-  state:0,
-  orderNum:1
+  statu:0,
+  ordernum:3
 })
 
 // 编辑权限表单代理
@@ -338,7 +385,33 @@ const editDialogClosed = (formEl) => {
 
 // 编辑权限表单提交
 const editFormSubmit = (formEl) => {
-  formEl.resetFields()
+  if (!formEl) return
+  formEl.validate( async (valid) => {
+    if (valid) {
+      console.log(editForm)
+      const {data:res}  =  await api.post('sys/menu/update', editForm)
+      if (res.status !== 200){
+        ElMessage.error(res.msg)
+      }
+      editMenuVisible.value = false
+      await getMenuList()
+      ElMessage.success(res.msg)
+    }
+  })
+}
+
+// 选中项发送变化时触发
+const editparentCateChanged = () => {
+  if (selectedKeys.value) {
+    console.log(1111,selectedKeys.value)
+    if (selectedKeys.value.length > 1) {
+      editForm.parentId = selectedKeys.value[1]
+    }else {
+      editForm.parentId = selectedKeys.value[0]
+    }
+  } else {
+    editForm.parentId = 0
+  }
 }
 
 // 编辑权限表单重置
@@ -361,10 +434,10 @@ const removeDialogOpen = (id) => {
       }
   )
       .then(async () => {
-        // const { data: res } = await api.delete('roles/' + id)
-        // if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
-        // ElMessage.success(res.meta.msg)
-        // getRolesList()
+        const { data: res } = await api.post('sys/menu/delete/' + id)
+        if (res.status !== 200) return ElMessage.error(res.msg)
+        ElMessage.success(res.msg)
+        await getMenuList()
       })
       .catch(() => {
         // getRolesList()
@@ -372,102 +445,23 @@ const removeDialogOpen = (id) => {
       })
 }
 
+// ----- 主页 ------
+const tableData = ref()
 
-const tableData = [
-  {
-    id: 1,
-    perms: '2016-05-02',
-    name: 'wangxiaohu',
-    type:0,
-    state:0,
-    children:[
-      {
-        id: 11,
-        perms: '2016-05-01',
-        name: 'wangxiaohu',
-        state:1,
-        type:1
-      },
-      {
-        id: 12,
-        perms: '2016-05-01',
-        name: 'wangxiaohu',
-        type:2,
-        state:0
-      },
-    ],
+onBeforeMount( () => {
+  getMenuList()
 
-  },
-  {
-    id: 2,
-    perms: '2016-05-04',
-    name: 'wangxiaohu',
-    type:0,
-    state:1,
-    children:[
-      {
-        id: 21,
-        perms: '2016-05-01',
-        name: 'wangxiaohu',
-        state:1,
-        type:1
-      },
-      {
-        id: 22,
-        perms: '2016-05-01',
-        name: 'wangxiaohu',
-        type:2,
-        state:0
-      },
-    ],
-  },
-  {
-    id: 3,
-    perms: '2016-05-01',
-    name: 'wangxiaohu',
-    type:0,
-    state:0,
-    children: [
-      {
-        id: 31,
-        perms: '2016-05-01',
-        name: 'wangxiaohu',
-        state:1,
-        type:1
-      },
-      {
-        id: 32,
-        perms: '2016-05-01',
-        name: 'wangxiaohu',
-        type:2,
-        state:0
-      },
-    ],
-  },
-  {
-    id: 4,
-    perms: '2016-05-03',
-    name: 'wangxiaohu',
-    type:0,
-    state:0,
-    children:[
-      {
-        id: 41,
-        perms: '2016-05-01',
-        name: 'wangxiaohu',
-        state:1,
-        type:1
-      },
-      {
-        id: 42,
-        perms: '2016-05-01',
-        name: 'wangxiaohu',
-        type:2,
-        state:0
-      },
-    ],
-  },
-]
+})
+
+const getMenuList = async () => {
+  const {data:res}  =  await api.get('sys/menu/list' )
+  if (res.status !== 200){
+    ElMessage.error(res.msg)
+  }
+  console.log(res.obj)
+  tableData.value = res.obj
+}
+
 </script>
 
 <style lang="less" scoped>

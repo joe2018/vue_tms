@@ -5,7 +5,10 @@ import qs from 'qs'
 // 创建axios实例
 const api = axios.create({
     baseURL: 'http://localhost:8081/',
-    timeout: 1000
+    timeout: 1000,
+    headers: {
+        'Content-Type': "application/json; charset=utf-8"
+    }
 })
 
 // 2.请求拦截器
@@ -17,7 +20,7 @@ api.interceptors.request.use(config => {
     }
     // 防止post请求，后端无法接收参数问题（方式一）
     if (config.method.toLowerCase() === 'post') { // post请求配置数据转换和请求头
-        config.data = qs.stringify(config.data) // 数据转化,也可以使用qs转换
+        config.data = JSON.stringify(config.data) // 数据转化,也可以使用qs转换
     }
     return config
 }, error => {
@@ -75,7 +78,7 @@ api.interceptors.response.use(
                     error.message = 'HTTP版本不受支持(505)'
                     break
                 default:
-                    error.message = `连接出错(${error.response.status})!`
+                    error.message = `连接出错!`
             }
         } else {
             error.message = '连接服务器失败!'
