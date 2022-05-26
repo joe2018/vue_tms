@@ -11,13 +11,13 @@
             active-text-color="#409eff"
             background-color="#304156"
             class="el-menu-vertical-demo"
-            :default-active="defactivePath"
+            :default-active="activeIndex"
             text-color="#fff"
             :collapse="isCollapse"
             :collapse-transition="false"
             :router="true"
         >
-          <el-menu-item index="/welcome" @click="actHomeTabs">
+          <el-menu-item index="welcome" @click="actHomeTabs">
             <template #title>
               <el-icon><HomeFilled /></el-icon>
               <span>首页</span>
@@ -28,15 +28,15 @@
               <el-icon>
                 <component :is="iconObj[item.id]"/>
               </el-icon>
-              <span>{{ item.meta.title }}</span>
+              <span>{{ item.title }}</span>
             </template>
-            <el-menu-item :index="'/'+subitem.path" v-for="subitem in item.children" :key="subitem.id"
+            <el-menu-item :index="subitem.path" v-for="subitem in item.children" :key="subitem.id"
                           @click="saveNavstate(subitem)">
               <template #title>
                 <el-icon>
                   <Menu/>
                 </el-icon>
-                <span>{{ subitem.meta.title }}</span>
+                <span>{{ subitem.title }}</span>
               </template>
             </el-menu-item>
           </el-sub-menu>
@@ -67,7 +67,22 @@
         </el-dropdown>
       </el-header>
       <el-main>
-        <Tabs></Tabs>
+        <el-tabs
+            v-model="editableTabsValue"
+            type="card"
+            closable
+
+            @tab-remove="removeTab"
+            @tab-click="actionTab"
+        >
+          <el-tab-pane
+              v-for="item in editableTabs"
+              :key="item.name"
+              :label="item.title"
+              :name="item.name"
+          >
+          </el-tab-pane>
+        </el-tabs>
         <div style="margin: 0 15px;">
           <router-view></router-view>
         </div>
@@ -79,10 +94,8 @@
 <script setup>
 import {reactive, ref, shallowRef} from 'vue'
 import{ useStore }from"vuex"
-import Tabs from '@/components/utils/Tabs'
-import {computed} from "@vue/reactivity";
 
-const {HomeFilled, Avatar, Checked, Goods, List, PieChart, Menu} = require('@element-plus/icons')
+const {HomeFilled, Avatar, Checked, Goods, List, PieChart,Menu } = require('@element-plus/icons')
 
 const {onBeforeMount} = require('vue')
 
@@ -98,21 +111,14 @@ const showClick = () => {
 
 
 const iconObj = shallowRef({
-  101: Avatar,
-  120: Checked,
-  110: Goods,
-  140: List,
-  130: PieChart
+  1: Avatar,
+  2: Checked,
+  3: Goods,
+  4: List,
+  5: PieChart
 })
 
-const defactivePath = computed({
-  get:()=>{
-    return store.getters.activePath
-  },
-  set:(newValue)=>{
-    store.dispatch('menus/active_path',newValue)
-  }
-})
+const activeIndex = ref('welcome')
 
 const isCollapse = ref(false)
 
@@ -121,23 +127,85 @@ const toggleCollapse = () => {
 }
 
 const userinfo = reactive({
-  user_id:store.getters.userInfo.id,
-  user_avatar:store.getters.userInfo.useravatar,
-  user_name:store.getters.userInfo.username
+  user_id: JSON.parse(window.sessionStorage.getItem('userinfo')).id,
+  user_avatar: JSON.parse(window.sessionStorage.getItem('userinfo')).useravatar,
+  user_name: JSON.parse(window.sessionStorage.getItem('userinfo')).username
 })
 
 onBeforeMount( () => {
-  meunsList.value = store.getters.userInfo.routerList
-  defactivePath.value = store.getters.activePath
+  meunsList.value = JSON.parse(window.sessionStorage.getItem('userinfo')).routerList
+  activeIndex.value = window.sessionStorage.getItem('activeIndex')
+  editableTabsValue.value = window.sessionStorage.getItem('editableTabsValue')
+  editableTabs.value = JSON.parse(window.sessionStorage.getItem('editableTabs'))
 })
 
 const saveNavstate = (subitem) => {
-  defactivePath.value = subitem.path
-  store.dispatch('menus/add_tabs',subitem)
+  activeIndex.value = subitem.path
+  window.sessionStorage.setItem('activeIndex',activeIndex.value)
+  console.log(101,editableTabs.value)
+  add_tabs(subitem)
 }
 
 const actHomeTabs = () => {
-  store.dispatch('menus/set_editabletabs','welcome')
+  activeIndex.value = 'welcome'
+  editableTabsValue.value = 'welcome'
+  window.sessionStorage.setItem('activeIndex',activeIndex.value)
+  window.sessionStorage.setItem('editableTabsValue',editableTabsValue.value)
+}
+
+const editableTabsValue = ref('welcome')
+const editableTabs = ref()
+
+const add_tabs = (subitem) => {
+  let isHas = true
+  console.log(119,editableTabs.value)
+  editableTabs.value.forEach(item => {
+    console.log(item.name,subitem.path)
+    if (item.name === subitem.path){
+      isHas = false
+    }})
+  if (isHas) {
+    editableTabs.value.push({
+      title: subitem.title,
+      name: subitem.path,
+    })
+  }
+  editableTabsValue.value = subitem.path
+  activeIndex.value = subitem.path
+  window.sessionStorage.setItem('editableTabsValue',editableTabsValue.value)
+  window.sessionStorage.setItem('activeIndex',activeIndex.value)
+  window.sessionStorage.setItem('editableTabs',JSON.stringify(editableTabs.value))
+}
+
+const removeTab = (targetName) =>{
+    if ('welcome' === targetName){
+      return 0
+    }
+    const tabs = editableTabs.value
+    let activeName = editableTabsValue.value
+    if (activeName === targetName){
+      tabs.forEach((tab,index) => {
+        if (tab.name === targetName){
+          const nextTab = tabs[index + 1] || tabs[index - 1]
+          if (nextTab) {
+            activeName = nextTab.name
+          }
+        }
+      })
+    }
+    editableTabsValue.value = activeName
+    editableTabs.value = tabs.filter((tab) => tab.name !== targetName)
+    window.router.push('/'+activeName)
+    window.sessionStorage.setItem('editableTabsValue',editableTabsValue.value)
+    window.sessionStorage.setItem('activeIndex',activeName)
+    window.sessionStorage.setItem('editableTabs',JSON.stringify(editableTabs))
+}
+
+const actionTab =  (TabsPaneContext) =>{
+  activeIndex.value = TabsPaneContext.props.name
+  window.sessionStorage.setItem('activeIndex',TabsPaneContext.props.name)
+  window.router.push(activeIndex.value)
+
 }
 
 

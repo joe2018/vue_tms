@@ -4,7 +4,7 @@ import qs from 'qs'
 
 // 创建axios实例
 const api = axios.create({
-    baseURL: 'http://localhost:8888/',
+    baseURL: 'http://localhost:8081/',
     timeout: 1000
 })
 
@@ -33,10 +33,10 @@ api.interceptors.response.use(
     error => {
         // 请求错误时做些事
         let status = ''
-        if (error.request.meta) {
-            status = error.request.meta
-        } else if (error.response.meta) {
-            status = error.response.meta
+        if (error.request) {
+            status = error.request
+        } else if (error.response) {
+            status = error.response.status
         }
         if (status) {
             switch (status.status) {

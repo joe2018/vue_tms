@@ -3,7 +3,7 @@
     <el-row>
       <el-row :gutter="20">
         <el-col :span="6"><div class="grid-content bg-purple" />
-          <el-button type="primary" @click="addMenuVisible = true" v-if="hasAuth('sys:menu:save')">新增权限</el-button>
+          <el-button type="primary" @click="addMenuVisible = true" v-if="hasAuth('sys:menus:save')">新增权限</el-button>
         </el-col>
       </el-row>
     </el-row>
@@ -44,7 +44,7 @@
               placement="top"
               :enterable="false"
           >
-            <el-button type="primary" size="small" :icon="Edit" @click="editDialogOpen(scope.row.id)"/>
+            <el-button type="primary" size="small" :icon="Edit" v-if="hasAuth('sys:menus:update')" @click="editDialogOpen(scope.row.id)"/>
           </el-tooltip>
           <!--            删除-->
           <el-tooltip
@@ -53,7 +53,7 @@
               placement="top"
               :enterable="false"
           >
-            <el-button type="danger" size="small" :icon="Delete" @click="removeDialogOpen(scope.row.id)"></el-button>
+            <el-button type="danger" size="small" :icon="Delete" v-if="hasAuth('sys:menus:delete')" @click="removeDialogOpen(scope.row.id)"></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -231,7 +231,7 @@ const selectedKeys = ref([])
 const addFormRef = ref()
 
 // 新增权限弹窗状态记录
-const addMenuVisible = ref()
+const addMenuVisible = ref(false)
 
 // 关闭新增权限弹窗事件
 const addDialogClosed = (formEl) => {
@@ -314,7 +314,7 @@ const editDialogOpen =()=>{
 }
 
 // 编辑权限弹窗状态记录
-const editMenuVisible = ref()
+const editMenuVisible = ref(false)
 
 // 编辑权限表单
 const editForm = reactive({

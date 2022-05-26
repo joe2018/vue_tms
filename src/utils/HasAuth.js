@@ -1,8 +1,7 @@
 import store from "@/store"
 
 const hasAuth = (perm) => {
-    const authority = store.getters.permList
-    console.log(authority)
+    const authority = JSON.parse(window.sessionStorage.getItem("userinfo")).permList
     return authority.indexOf(perm) > -1
 }
 

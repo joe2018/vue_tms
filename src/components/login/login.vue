@@ -56,7 +56,8 @@ import api from '@/axios/index'
 const { Lock, Avatar } = require('@element-plus/icons')
 import { useRouter } from "vue-router"
 import { useStore } from "vuex"
-import qs from 'qs'
+import {filterAsyncRouter} from "@/utils/menus";
+import { add_route } from '@/utils/addRoute'
 
 const router = useRouter()
 const store = useStore()
@@ -106,7 +107,7 @@ const loginFormRules = {
   ]
 }
 
-const userInfo = reactive({
+const userInfo = {
   id:0,
   rid:0,
   email:'',
@@ -114,39 +115,53 @@ const userInfo = reactive({
   username: '',
   token: '',
   useravatar:'',
-  routerList: []
-})
-// JWuKdAmbMpnxCLg48UMLueEEGdq69lV5
-// MXGFcki/aIH7AqNf7Wk0uo7UHRuTfkZwaZ9+dXqV
+  routerList: [],
+  permList:[],
+  created:''
+}
 const submitForm = (formEl) => {
   if (!formEl) return
-  formEl.validate(async (valid) => {
+  formEl.validate( async (valid) => {
     if (valid) {
-      const res  = await api.post('/login', form)
+      const res  =  await api.post('/login', form)
       if (res.data.status !== 200){
-        ElMessage.error(res.msg)
-        getCaptchaImg()
+        ElMessage.error(res.data.msg)
+        await getCaptchaImg()
       }
       ElMessage.success(res.data.msg)
       const jwt = res.headers['authorization']
       window.sessionStorage.setItem('token', jwt)
-      // userInfo.username = res.data.username
-      // userInfo.routerList = res.data.routerList
-      // userInfo.token = res.data.token
-      // userInfo.id = res.data.id
-      // userInfo.rid = res.data.rid
-      // userInfo.email = res.data.email
-      // userInfo.mobile = res.data.mobile
-      // userInfo.useravatar = res.data.useravatar
-      // //触发登陆，保存信息，添加路由
-      // await store.dispatch("users/login", userInfo)
+      const menu = await api.get('sys/menu/nav',form.username)
+      const user = await api.get('/sys/userInfo',form.username)
+      if (menu){
+        userInfo.routerList = menu.data.obj.nav
+        userInfo.permList = menu.data.obj.authoritys
+      }
+      if (user){
+        userInfo.useravatar = user.data.obj.avatar
+        userInfo.id = user.data.obj.id
+        userInfo.created = user.data.obj.created
+        userInfo.username = user.data.obj.username
+        userInfo.token = jwt
+      }
+      window.sessionStorage.setItem('userinfo',JSON.stringify(userInfo))
+      add_route()
+      window.sessionStorage.setItem('activeIndex','welcome')
+      window.sessionStorage.setItem('editableTabsValue','welcome')
+      window.sessionStorage.setItem('editableTabs',JSON.stringify([{
+        title:'首页',
+        name:'welcome',
+      }]))
       await router.push({path: "/welcome"})
-    } else {
+    }
+      else {
       ElMessage.error('提交错误');
       return false;
     }
   })
 }
+
+
 
 const resetLoginForm = (formEl) => {
   if (!formEl) return

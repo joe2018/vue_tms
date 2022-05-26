@@ -2,22 +2,18 @@
  * 权限配置文件
  */
 import { router } from "@/router"
-import store from "@/store"
-
-//const whiteRouter = ["login", "404"] //路由白名单，不需要添加路由和登陆
+import { add_route } from "@/utils/addRoute"
 
 router.beforeEach(async (to, from, next) => {
   //有用户信息
-  console.log(to.path)
   if (sessionStorage.getItem('token')) {
     if (to.path === "/login" || to.path === '/') {
       next('welcome')
     }
     //获取用户信息
-    let userInfo  = store.getters.userInfo
-    // const { username } = userInfo
+    let userInfo  = JSON.parse(window.sessionStorage.getItem('userinfo'))
     //触发添加路由方法，里面会判断是否需要添加
-    await store.dispatch("users/addRoute")
+    add_route()
     let { routerList } = userInfo
     //根据to.name来判断是否为动态路由, 是否还有更好的判断方法？
     if (!to.name) {
