@@ -313,9 +313,7 @@ const addFormSubmit = (formEl) => {
   if (!formEl) return
   formEl.validate( async (valid) => {
     if (valid) {
-      console.log(addForm)
       const {data:res}  =  await api.post('sys/menu/save', addForm)
-      console.log(res)
       if (res.status !== 200){
         ElMessage.error(res.msg)
       }
@@ -389,7 +387,7 @@ const editFormSubmit = (formEl) => {
   formEl.validate( async (valid) => {
     if (valid) {
       console.log(editForm)
-      const {data:res}  =  await api.post('sys/menu/update', editForm)
+      const {data:res}  = await api.post('sys/menu/update', editForm)
       if (res.status !== 200){
         ElMessage.error(res.msg)
       }
@@ -425,7 +423,7 @@ const editFormReset = (formEl) => {
 //删除权限函数
 const removeDialogOpen = (id) => {
   ElMessageBox.confirm(
-      '是否删除该权限？'+id,
+      '是否删除该权限？',
       '警告',
       {
         confirmButtonText: '确定',
@@ -458,7 +456,6 @@ const getMenuList = async () => {
   if (res.status !== 200){
     ElMessage.error(res.msg)
   }
-  console.log(res.obj)
   tableData.value = res.obj
 }
 
